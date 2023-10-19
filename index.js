@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId,  } = require('mongodb');
 require('dotenv').config()
 
 const app = express()
@@ -29,8 +29,18 @@ async function run() {
 
         const productCollection = client.db('product').collection('product')
 
+        const cartCollection = client.db('cartDB').collection('cart')
+
+
+
         app.get('/product', async (req, res) => {
             const cursor = productCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+        app.get('/cart', async (req, res) => {
+            const cursor = cartCollection.find()
             const result = await cursor.toArray()
             res.send(result)
         })
@@ -42,12 +52,28 @@ async function run() {
             res.send(result)
         })
 
+        app.delete('/cart/:id', async (req, res) => {
+            const id = req.params.id
+            console.log('delete data form data base', id);
+            const query = { _id: new ObjectId(id) }
+            const result = await cartCollection.deleteOne(query)
+            res.send(result)
+        })
+
+        app.post('/cart', async (req, res) => {
+            const cart = req.body
+            console.log(cart);
+            const result = await cartCollection.insertOne(cart)
+            res.send(result)
+        })
+
         app.post('/product', async (req, res) => {
             const newProduct = req.body;
             console.log(newProduct);
             const result = await productCollection.insertOne(newProduct)
             res.send(result)
         })
+
 
         app.put('/product/:id', async (req, res) => {
             const id = req.params.id
@@ -71,6 +97,7 @@ async function run() {
             const result = await productCollection.updateOne(filter, update2, options)
             res.send(result)
         })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
