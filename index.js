@@ -32,7 +32,6 @@ async function run() {
         const cartCollection = client.db('cartDB').collection('cart')
 
 
-
         app.get('/product', async (req, res) => {
             const cursor = productCollection.find()
             const result = await cursor.toArray()
@@ -60,12 +59,7 @@ async function run() {
             res.send(result)
         })
         
-        app.get("/cart", async (req, res) => {
-            const email = req.query.email;
-            const query = { email: email }
-            const result = await cartCollection.find(query).toArray();
-            res.send(result);
-        });
+        
 
         app.post('/cart', async (req, res) => {
             const cart = req.body
